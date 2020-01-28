@@ -2,14 +2,14 @@ extern unsigned int nand_cmd;    // 0x1b400000
 extern unsigned int spp;
 extern unsigned int pagesize;
 extern unsigned int sectorsize;
-extern unsigned int maxblock;    // Общее число блоков флешки
+extern unsigned int maxblock;    // The total number of flash drive blocks
 extern unsigned int oobsize;
 extern unsigned int bad_loader;
-extern unsigned int flash16bit; // 0 - 8-битная флешка, 1 - 16-битная
+extern unsigned int flash16bit; // 0 - 8-bit flash drive, 1 - 16-bit
 extern unsigned int badposition;
-extern unsigned int badplace;     // местоположение маркера: 0-user, 1-spare
+extern unsigned int badplace;     // marker location: 0-user, 1-spare
 
-// индекс в таблице чипcетов
+// chipset table index
 extern int chip_type; 
 
 
@@ -36,15 +36,15 @@ extern unsigned int nand_ecc_cfg;
 extern unsigned int NAND_FLASH_READ_ID; 
 extern unsigned int sector_buf;
 
-extern int bch_mode;        // режим ЕСС: 0=R-S  1=BCH
-extern int ecc_size;              // размер ЕСС
-extern int ecc_bit;               // число бит, корректируемых ECC
+extern int bch_mode;        // mode ЕСС: 0=R-S  1=BCH
+extern int ecc_size;              // the size ЕСС
+extern int ecc_bit;               // number of bits adjusted by ECC
 
 
 extern unsigned int nc_stop,nc_read,nc_readall,nc_program,nc_programall,nc_erase,nc_identify;
 
 
-#define ppb 64             // число страниц в 1 блоке
+#define ppb 64             // number of pages in 1 block
 
 void ttyflush();
 void dump(unsigned char buffer[],unsigned int len,unsigned int base);

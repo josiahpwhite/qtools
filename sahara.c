@@ -1,7 +1,7 @@
 #include "include.h"
 
 //****************************************
-//* Загрузка через сахару
+//* sahara loading
 //****************************************
 int dload_sahara() {
 
@@ -17,32 +17,32 @@ unsigned char helloreply[60]={
 }; 
 unsigned char donemes[8]={5,0,0,0,8,0,0,0};
 
-printf("\n Ожидаем пакет Hello от устройства...\n");
-port_timeout(100); // пакета Hello будем ждать 10 секунд
-iolen=read(siofd,replybuf,48);  // читаем Hello
+printf("\n Waiting for a Hello packet from the device...\n");
+port_timeout(100); // Hello packet we will wait 10 seconds
+iolen=read(siofd,replybuf,48);  // read Hello
 if ((iolen != 48)||(replybuf[0] != 1)) {
 	sendbuf[0]=0x3a; // может быть любое число
-	write(siofd,sendbuf,1); // инициируем отправку пакета Hello 
-	iolen=read(siofd,replybuf,48);  // пробуем читать Hello ещё раз
-	if ((iolen != 48)||(replybuf[0] != 1)) { // теперь всё - больше ждать нечего
-		printf("\n Пакет Hello от устройства не получен\n");
+	write(siofd,sendbuf,1); // initiate sending a Hello packet
+	iolen=read(siofd,replybuf,48);  // try reading Hello again
+	if ((iolen != 48)||(replybuf[0] != 1)) { // now everything - nothing more to wait
+		printf("\n Hello packet from device not received\n");
 		dump(replybuf,iolen,0);
 		return 1;
 	}
 }
 
-// Получили Hello, 
-ttyflush();  // очищаем буфер приема
-port_timeout(10); // теперь обмен пакетами пойдет быстрее - таймаут 1 с
-write(siofd,helloreply,48);   // отправляем Hello Response с переключением режима
-iolen=read(siofd,replybuf,20); // ответный пакет
+// Got Hello,
+ttyflush();  // clear the receive buffer
+port_timeout(10); // now packet exchange will go faster - timeout 1 s
+write(siofd,helloreply,48);   // send Hello Response with mode switching
+iolen=read(siofd,replybuf,20); // response packet
   if (iolen == 0) {
-    printf("\n Нет ответа от устройства\n");
+    printf("\n No response from device\n");
     return 1;
   }  
-// в replybuf должен быть запрос первого блока загрузчика
-imgid=*((unsigned int*)&replybuf[8]); // идентификатор образа
-printf("\n Идентификатор образа для загрузки: %08x\n",imgid);
+// in replybuf there should be a request for the first loader block
+imgid=*((unsigned int*)&replybuf[8]); // image id
+printf("\n Boot image id: %08x\n",imgid);
 switch (imgid) {
 
 	case 0x07:
@@ -54,55 +54,55 @@ switch (imgid) {
 	break;
 
 	default:
-          printf("\n Неизвестный идентификатор - нет такого образа!\n");
+          printf("\n Unknown identifier - no such image!\n");
 	return 1;
 }
-printf("\n Загружаем %s...\n",infilename); fflush(stdout);
+printf("\n Download %s...\n",infilename); fflush(stdout);
 in=fopen(infilename,"rb");
 if (in == 0) {
-  printf("\n Ошибка открытия входного файла %s\n",infilename);
+  printf("\n Error opening input file %s\n",infilename);
   return 1;
 }
 
-// Основной цикл передачи кода загрузчика
-printf("\n Передаём загрузчик в устройство...\n");
-while(replybuf[0] != 4) { // сообщение EOIT
- if (replybuf[0] != 3) { // сообщение Read Data
-    printf("\n Пакет с недопустимым кодом - прерываем загрузку!");
+// The main loader code transfer loop
+printf("\n We transfer the bootloader to the device...\n");
+while(replybuf[0] != 4) { // EOIT message
+ if (replybuf[0] != 3) { // read data message
+    printf("\n Package with Invalid Code - Abort Download!");
     dump(replybuf,iolen,0);
     fclose(in);
     return 1;
  }
-  // выделяем параметры фрагмента файла
+  // select the parameters of the file fragment
   offset=*((unsigned int*)&replybuf[12]);
   len=*((unsigned int*)&replybuf[16]);
-//  printf("\n адрес=%08x длина=%08x",offset,len);
+//  printf("\n address=%08x length=%08x",offset,len);
   fseek(in,offset,SEEK_SET);
   fread(sendbuf,1,len,in);
-  // отправляем блок данных сахаре
+  // send data block sahara
   write(siofd,sendbuf,len);
-  // получаем ответ
-  iolen=read(siofd,replybuf,20);      // ответный пакет
+  // we get the answer
+  iolen=read(siofd,replybuf,20);      // response packet
   if (iolen == 0) {
-    printf("\n Нет ответа от устройства\n");
+    printf("\n No response from device\n");
     fclose(in);
     return 1;
   }  
 }
-// получили EOIT, конец загрузки
-write(siofd,donemes,8);   // отправляем пакет Done
-iolen=read(siofd,replybuf,12); // ожидаем Done Response
+// got EOIT, end of download
+write(siofd,donemes,8);   // send package Done
+iolen=read(siofd,replybuf,12); // expecting a done response
 if (iolen == 0) {
-  printf("\n Нет ответа от устройства\n");
+  printf("\n No response from device\n");
   fclose(in);
   return 1;
 } 
-// получаем статус
+// get status
 donestat=*((unsigned int*)&replybuf[12]); 
 if (donestat == 0) {
-  printf("\n Загрузчик передан успешно\n");
+  printf("\n Loader transferred successfully\n");
 } else {
-  printf("\n Ошибка передачи загрузчика\n");
+  printf("\n Bootloader transfer error\n");
 }
 fclose(in);
 
