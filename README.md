@@ -1,21 +1,25 @@
 # qtools
-Набор инструментов для работы с flash модемов на чипсете Qualcom
-Набор состоит из пакета утилит и набора патченных загрузчиков.
 
-qcommand - интерактивный терминал для ввода команд через командный порт. Идет на замену жутко неудобного revskills.
-           Позволяет вводить побайтно командные пакеты, редактировать память, читать и просматривать любй сектор flash.
+This code is originally from https://github.com/forth32/qtools
+I simply ran most of the strings and comments through google translate to make usage easier without needing to refer to the source code all of the time
 
-qrmem - программа для чтения дампа адресного пространства модема.
+A set of tools for working with flash modems on the Qualcom chipset
+The kit consists of a package of utilities and a set of patched bootloaders.
 
-qrflash - программа для чтения flash. Умеет читать как диапазон блоков, так и разделы по карте разделов.
+qcommand - an interactive terminal for entering commands through the command port. It replaces the terribly inconvenient revskills.
+           It allows you to enter command-byte command packets, edit memory, read and view any flash sector.
 
-qwflash - программа для записи образов разделов через режим user partitions загрузчика, аналогично QPST.
+qrmem is a program for reading a dump of the modem address space.
 
-qwdirect - программа для прямой записи блоков флешки с/без ООВ через порты контроллера (без участия логики загрузчика).
+qrflash is a flash reader. Able to read both a range of blocks and sections on a partition map.
 
-qdload - программа для загрузки загрузчиков. Требует, чтобы модем был в download mode или режиме аварийной загрузки PBL.
+qwflash is a program for recording partition images through the user partitions mode of the bootloader, similar to QPST.
 
-dload.sh - скрипт для перевода модема в режим загрузки и отправки в него указанного загрузчика.
+qwdirect - a program for direct recording of flash drive blocks with / without OOB through the controller ports (without the participation of the bootloader logic).
 
-Для работы программ требуются модифицированные версии загрузчиков. Они собраны в каталоге loaders, а исходник патча
-лежит в cmd_05_write_patched.asm.
+qdload is a program for loading bootloaders. Requires the modem to be in download mode or PBL emergency boot mode.
+
+dload.sh - a script to put the modem into boot mode and send the specified bootloader to it.
+
+Programs require modified versions of bootloaders. They are collected in the loaders directory, and the patch source
+lies in cmd_05_write_patched.asm.
